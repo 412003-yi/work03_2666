@@ -28,6 +28,38 @@ let elements = [];
 let currentIndex = 0;
 let toastTimer = null;
 
+const chineseNameToSymbol = {
+  氫: 'H',
+  氦: 'He',
+  鋰: 'Li',
+  鈹: 'Be',
+  硼: 'B',
+  碳: 'C',
+  氮: 'N',
+  氧: 'O',
+  氟: 'F',
+  霉: 'Ne',
+  鈉: 'Na',
+  镁: 'Mg',
+  鋁: 'Al',
+  矽: 'Si',
+  磷: 'P',
+  硫: 'S',
+  氯: 'Cl',
+  氬: 'Ar',
+  鉀: 'K',
+  鈣: 'Ca',
+  鈧: 'Sc',
+  釩: 'V',
+  鉻: 'Cr',
+  錳: 'Mn',
+  鐵: 'Fe',
+  鈷: 'Co',
+  鎳: 'Ni',
+  銅: 'Cu',
+  鋅: 'Zn',
+};
+
 const defaultElements = [
   {
     symbol: 'H',
@@ -158,29 +190,43 @@ function nextElement() {
   renderCard();
 }
 
+function getSymbolByChineseName(name) {
+  const trimmed = name.trim();
+  if (!trimmed) return null;
+  return chineseNameToSymbol[trimmed] || null;
+}
+
 async function autoFill() {
   const symbol = inputSymbol.value.trim();
   const name = inputName.value.trim();
 
   if (!symbol && !name) {
-    showToast('請先輸入元素符號或名稱');
+    showToast('請先輸入元素符號或中文名稱');
     return;
+  }
+
+  let lookupSymbol = symbol;
+  if (!lookupSymbol && name) {
+    lookupSymbol = getSymbolByChineseName(name);
+    if (!lookupSymbol) {
+      showToast('無法根據中文名稱自動找到元素符號，請先輸入符號');
+      return;
+    }
+    inputSymbol.value = lookupSymbol;
   }
 
   autoFillBtn.disabled = true;
   autoFillBtn.textContent = '載入中…';
 
   try {
-    const apiUrl = symbol
-      ? `https://neelpatel05.pythonanywhere.com/element/symbol?symbol=${encodeURIComponent(symbol)}`
-      : `https://neelpatel05.pythonanywhere.com/element/atomicname?name=${encodeURIComponent(name)}`;
+    const apiUrl = `https://neelpatel05.pythonanywhere.com/element/symbol?symbol=${encodeURIComponent(lookupSymbol)}`;
     const response = await fetch(apiUrl);
     if (!response.ok) throw new Error('API 回傳錯誤');
 
     const data = await response.json();
     if (!data || !data.symbol) throw new Error('查無元素資料');
 
-    inputSymbol.value = data.symbol || inputSymbol.value;
+    inputSymbol.value = data.symbol || lookupSymbol;
     inputName.value = data.name || inputName.value;
     inputAtomicNumber.value = data.atomicNumber || inputAtomicNumber.value;
     inputPeriod.value = data.period || inputPeriod.value;
@@ -195,7 +241,7 @@ async function autoFill() {
     showToast('自動填入完成');
   } catch (error) {
     console.error(error);
-    showToast('自動填入失敗，請確認元素符號或名稱');
+    showToast('自動填入失敗，請確認元素符號或中文名稱');
   } finally {
     autoFillBtn.disabled = false;
     autoFillBtn.textContent = '自動填入';
