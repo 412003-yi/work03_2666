@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>背元素週期表 APP</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div>
+        <h1>背元素週期表</h1>
+        <p>純前端卡片記憶與元素管理</p>
+      </div>
+      <nav>
+        <button id="tab-card" class="active">記憶卡</button>
+        <button id="tab-manage">管理頁面</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="card-section" class="page active">
+        <div class="card-wrapper">
+          <div class="card" id="flash-card" tabindex="0" aria-label="元素卡片，按下可翻轉">
+            <div class="card-face card-front">
+              <div class="symbol" id="display-symbol">H</div>
+              <div class="element-name" id="display-name">氫</div>
+            </div>
+            <div class="card-face card-back">
+              <div class="detail-list">
+                <div class="detail-row"><span>原子序</span><strong id="detail-atomic-number">1</strong></div>
+                <div class="detail-row"><span>週期</span><strong id="detail-period">1</strong></div>
+                <div class="detail-row"><span>族</span><strong id="detail-group">1</strong></div>
+                <div class="detail-row"><span>性質</span><strong id="detail-category">非金屬、氣體</strong></div>
+                <div class="detail-row"><span>備註</span><strong id="detail-property">最輕的元素</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-controls">
+          <button id="prev-element">上一個</button>
+          <button id="next-element">下一個</button>
+        </div>
+      </section>
+
+      <section id="manage-section" class="page">
+        <div class="manage-grid">
+          <div class="form-card">
+            <h2>新增 / 編輯元素</h2>
+            <form id="element-form">
+              <div class="form-row two-col">
+                <div>
+                  <label for="input-symbol">元素符號</label>
+                  <input id="input-symbol" type="text" maxlength="2" placeholder="H" required />
+                </div>
+                <div>
+                  <label for="input-name">元素中文名</label>
+                  <input id="input-name" type="text" placeholder="氫" required />
+                </div>
+              </div>
+              <div class="form-row two-col">
+                <div>
+                  <label for="input-atomic-number">原子序</label>
+                  <input id="input-atomic-number" type="number" min="1" placeholder="1" />
+                </div>
+                <div>
+                  <label for="input-period">週期</label>
+                  <input id="input-period" type="number" min="1" placeholder="1" />
+                </div>
+              </div>
+              <div class="form-row two-col">
+                <div>
+                  <label for="input-group">族</label>
+                  <input id="input-group" type="text" placeholder="1" />
+                </div>
+                <div>
+                  <label for="input-category">性質</label>
+                  <input id="input-category" type="text" placeholder="非金屬、氣體" />
+                </div>
+              </div>
+              <div class="form-row">
+                <label for="input-property">補充說明</label>
+                <textarea id="input-property" rows="3" placeholder="例如：最輕的元素 / 常溫下為氣體"></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="button" id="auto-fill">自動填入</button>
+                <button type="submit" id="save-element">儲存元素</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="list-card">
+            <h2>我的元素列表</h2>
+            <ul id="element-list"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
