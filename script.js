@@ -193,7 +193,22 @@ function nextElement() {
 function getSymbolByChineseName(name) {
   const trimmed = name.trim();
   if (!trimmed) return null;
-  return chineseNameToSymbol[trimmed] || null;
+  const direct = chineseNameToSymbol[trimmed];
+  if (direct) return direct;
+  const matched = elements.find((item) => item.chineseName === trimmed);
+  return matched ? matched.symbol : null;
+}
+
+function findElementData(symbol, name) {
+  if (symbol) {
+    const match = elements.find((item) => item.symbol.toLowerCase() === symbol.toLowerCase());
+    if (match) return match;
+  }
+  if (name) {
+    const match = elements.find((item) => item.chineseName === name);
+    if (match) return match;
+  }
+  return null;
 }
 
 async function autoFill() {
@@ -213,6 +228,19 @@ async function autoFill() {
       return;
     }
     inputSymbol.value = lookupSymbol;
+  }
+
+  const localData = findElementData(lookupSymbol, name);
+  if (localData) {
+    inputSymbol.value = localData.symbol;
+    inputName.value = localData.chineseName;
+    inputAtomicNumber.value = localData.atomicNumber;
+    inputPeriod.value = localData.period;
+    inputGroup.value = localData.group;
+    inputCategory.value = localData.category;
+    inputProperty.value = localData.property;
+    showToast('本地資料已填入');
+    return;
   }
 
   autoFillBtn.disabled = true;
