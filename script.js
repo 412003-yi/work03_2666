@@ -28,66 +28,37 @@ let elements = [];
 let currentIndex = 0;
 let toastTimer = null;
 
-const chineseNameToSymbol = {
-  氫: 'H',
-  氦: 'He',
-  鋰: 'Li',
-  鈹: 'Be',
-  硼: 'B',
-  碳: 'C',
-  氮: 'N',
-  氧: 'O',
-  氟: 'F',
-  霉: 'Ne',
-  鈉: 'Na',
-  镁: 'Mg',
-  鋁: 'Al',
-  矽: 'Si',
-  磷: 'P',
-  硫: 'S',
-  氯: 'Cl',
-  氬: 'Ar',
-  鉀: 'K',
-  鈣: 'Ca',
-  鈧: 'Sc',
-  釩: 'V',
-  鉻: 'Cr',
-  錳: 'Mn',
-  鐵: 'Fe',
-  鈷: 'Co',
-  鎳: 'Ni',
-  銅: 'Cu',
-  鋅: 'Zn',
+const elementDetails = {
+  H: { symbol: 'H', chineseName: '氫', atomicNumber: 1, period: 1, group: '1', category: '非金屬、氣體', property: '最輕的元素' },
+  He: { symbol: 'He', chineseName: '氦', atomicNumber: 2, period: 1, group: '18', category: '稀有氣體', property: '常溫常壓下為氣體' },
+  Li: { symbol: 'Li', chineseName: '鋰', atomicNumber: 3, period: 2, group: '1', category: '鹼金屬', property: '柔軟銀白色金屬' },
+  Be: { symbol: 'Be', chineseName: '鈹', atomicNumber: 4, period: 2, group: '2', category: '鹼土金屬', property: '較硬的金屬元素' },
+  B: { symbol: 'B', chineseName: '硼', atomicNumber: 5, period: 2, group: '13', category: '準金屬', property: '半導體特性' },
+  C: { symbol: 'C', chineseName: '碳', atomicNumber: 6, period: 2, group: '14', category: '非金屬', property: '生命有機物核心元素' },
+  N: { symbol: 'N', chineseName: '氮', atomicNumber: 7, period: 2, group: '15', category: '非金屬、氣體', property: '空氣主要成分' },
+  O: { symbol: 'O', chineseName: '氧', atomicNumber: 8, period: 2, group: '16', category: '非金屬、氣體', property: '維持生命燃燒與呼吸' },
+  F: { symbol: 'F', chineseName: '氟', atomicNumber: 9, period: 2, group: '17', category: '鹵素', property: '活性極強的非金屬' },
+  Ne: { symbol: 'Ne', chineseName: '氖', atomicNumber: 10, period: 2, group: '18', category: '稀有氣體', property: '常用於霓虹燈' },
+  Na: { symbol: 'Na', chineseName: '鈉', atomicNumber: 11, period: 3, group: '1', category: '鹼金屬', property: '與水劇烈反應' },
+  Mg: { symbol: 'Mg', chineseName: '镁', atomicNumber: 12, period: 3, group: '2', category: '鹼土金屬', property: '輕質結構材料' },
+  Al: { symbol: 'Al', chineseName: '鋁', atomicNumber: 13, period: 3, group: '13', category: '金屬', property: '輕且抗腐蝕' },
+  Si: { symbol: 'Si', chineseName: '矽', atomicNumber: 14, period: 3, group: '14', category: '準金屬', property: '半導體材料' },
+  P: { symbol: 'P', chineseName: '磷', atomicNumber: 15, period: 3, group: '15', category: '非金屬', property: '常見於肥料與化合物' },
+  S: { symbol: 'S', chineseName: '硫', atomicNumber: 16, period: 3, group: '16', category: '非金屬', property: '常見於火硝與硫酸' },
+  Cl: { symbol: 'Cl', chineseName: '氯', atomicNumber: 17, period: 3, group: '17', category: '鹵素', property: '常用消毒劑' },
+  Ar: { symbol: 'Ar', chineseName: '氬', atomicNumber: 18, period: 3, group: '18', category: '稀有氣體', property: '惰性氣體' },
+  K: { symbol: 'K', chineseName: '鉀', atomicNumber: 19, period: 4, group: '1', category: '鹼金屬', property: '重要電解質' },
+  Ca: { symbol: 'Ca', chineseName: '鈣', atomicNumber: 20, period: 4, group: '2', category: '鹼土金屬', property: '骨骼與貝殼成分' },
 };
 
+const chineseNameToSymbol = Object.fromEntries(
+  Object.values(elementDetails).map((item) => [item.chineseName, item.symbol])
+);
+
 const defaultElements = [
-  {
-    symbol: 'H',
-    chineseName: '氫',
-    atomicNumber: 1,
-    period: 1,
-    group: '1',
-    category: '非金屬、氣體',
-    property: '最輕的元素',
-  },
-  {
-    symbol: 'He',
-    chineseName: '氦',
-    atomicNumber: 2,
-    period: 1,
-    group: '18',
-    category: '稀有氣體',
-    property: '常溫常壓下為氣體',
-  },
-  {
-    symbol: 'C',
-    chineseName: '碳',
-    atomicNumber: 6,
-    period: 2,
-    group: '14',
-    category: '非金屬',
-    property: '生命有機物核心元素',
-  },
+  elementDetails.H,
+  elementDetails.He,
+  elementDetails.C,
 ];
 
 function showToast(message) {
