@@ -164,22 +164,16 @@ function nextElement() {
 function getSymbolByChineseName(name) {
   const trimmed = name.trim();
   if (!trimmed) return null;
-  const direct = chineseNameToSymbol[trimmed];
-  if (direct) return direct;
-  const matched = elements.find((item) => item.chineseName === trimmed);
-  return matched ? matched.symbol : null;
+  return chineseNameToSymbol[trimmed] || null;
 }
 
 function findElementData(symbol, name) {
-  if (symbol) {
-    const match = elements.find((item) => item.symbol.toLowerCase() === symbol.toLowerCase());
-    if (match) return match;
+  let searchSymbol = symbol;
+  if (!searchSymbol && name) {
+    searchSymbol = getSymbolByChineseName(name);
   }
-  if (name) {
-    const match = elements.find((item) => item.chineseName === name);
-    if (match) return match;
-  }
-  return null;
+  if (!searchSymbol) return null;
+  return elementDetails[searchSymbol] || null;
 }
 
 async function autoFill() {
@@ -191,26 +185,22 @@ async function autoFill() {
     return;
   }
 
-  let lookupSymbol = symbol;
-  if (!lookupSymbol && name) {
-    lookupSymbol = getSymbolByChineseName(name);
-    if (!lookupSymbol) {
-      showToast('無法根據中文名稱自動找到元素符號，請先輸入符號');
-      return;
-    }
-    inputSymbol.value = lookupSymbol;
+  const data = findElementData(symbol, name);
+  if (data) {
+    inputSymbol.value = data.symbol;
+    inputName.value = data.chineseName;
+    inputAtomicNumber.value = data.atomicNumber;
+    inputPeriod.value = data.period;
+    inputGroup.value = data.group;
+    inputCategory.value = data.category;
+    inputProperty.value = data.property;
+    showToast('資料已填入');
+    return;
   }
 
-  const localData = findElementData(lookupSymbol, name);
-  if (localData) {
-    inputSymbol.value = localData.symbol;
-    inputName.value = localData.chineseName;
-    inputAtomicNumber.value = localData.atomicNumber;
-    inputPeriod.value = localData.period;
-    inputGroup.value = localData.group;
-    inputCategory.value = localData.category;
-    inputProperty.value = localData.property;
-    showToast('本地資料已填入');
+  let lookupSymbol = symbol;
+  if (!lookupSymbol && name) {
+    showToast('無此元素資料，請輸入符號');
     return;
   }
 
@@ -222,25 +212,25 @@ async function autoFill() {
     const response = await fetch(apiUrl);
     if (!response.ok) throw new Error('API 回傳錯誤');
 
-    const data = await response.json();
-    if (!data || !data.symbol) throw new Error('查無元素資料');
+    const apiData = await response.json();
+    if (!apiData || !apiData.symbol) throw new Error('查無元素資料');
 
-    inputSymbol.value = data.symbol || lookupSymbol;
-    inputName.value = data.name || inputName.value;
-    inputAtomicNumber.value = data.atomicNumber || inputAtomicNumber.value;
-    inputPeriod.value = data.period || inputPeriod.value;
-    inputGroup.value = data.group || data.groupBlock || inputGroup.value;
-    inputCategory.value = data.category || data.groupBlock || data.standardState || inputCategory.value;
-    inputProperty.value = data.standardState
-      ? `狀態：${data.standardState}`
-      : data.bondingType
-      ? `鍵結：${data.bondingType}`
+    inputSymbol.value = apiData.symbol || lookupSymbol;
+    inputName.value = apiData.name || inputName.value;
+    inputAtomicNumber.value = apiData.atomicNumber || inputAtomicNumber.value;
+    inputPeriod.value = apiData.period || inputPeriod.value;
+    inputGroup.value = apiData.group || apiData.groupBlock || inputGroup.value;
+    inputCategory.value = apiData.category || apiData.groupBlock || apiData.standardState || inputCategory.value;
+    inputProperty.value = apiData.standardState
+      ? `狀態：${apiData.standardState}`
+      : apiData.bondingType
+      ? `鍵結：${apiData.bondingType}`
       : inputProperty.value;
 
-    showToast('自動填入完成');
+    showToast('API 資料已填入');
   } catch (error) {
     console.error(error);
-    showToast('自動填入失敗，請確認元素符號或中文名稱');
+    showToast('API 查詢失敗，請確認元素符號');
   } finally {
     autoFillBtn.disabled = false;
     autoFillBtn.textContent = '自動填入';
